@@ -604,6 +604,7 @@ bool NimBLERemoteCharacteristic::writeValue(uint8_t* data, size_t length, bool r
         switch(rc){
             case 0:
             case BLE_HS_EDONE:
+				rc = 0;
                 break;
             case BLE_HS_ATT_ERR(BLE_ATT_ERR_ATTR_NOT_LONG):
                 NIMBLE_LOGE(LOG_TAG, "Long write not supported by peer; Truncating length to %d", mtu);
