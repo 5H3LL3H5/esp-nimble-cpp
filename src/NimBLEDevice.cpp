@@ -34,6 +34,10 @@
 
 #include "NimBLELog.h"
 
+extern "C" {
+    int ble_hs_pvcy_rpa_config(uint8_t enable);
+}
+
 static const char* LOG_TAG = "NimBLEDevice";
 
 /**
@@ -367,16 +371,18 @@ void NimBLEDevice::stopAdvertising() {
 /* STATIC */ void NimBLEDevice::onSync(void)
 {
     NIMBLE_LOGI(LOG_TAG, "NimBle host synced.");
-    // This check is needed due to potentially being called multiple times in succession
-    // If this happens, the call to scan start may get stuck or cause an advertising fault.
-    if(m_synced) {
-        return;
-    }
     
     /* Make sure we have proper identity address set (public preferred) */
     int rc = ble_hs_util_ensure_addr(0);
     assert(rc == 0);
     
+    //ble_hs_pvcy_rpa_config(true);
+    
+    // This check is needed due to potentially being called multiple times in succession
+    // If this happens, the call to scan start may get stuck or cause an advertising fault.
+    if(m_synced) {
+        return;
+    }
     m_synced = true;
     
     if(m_pScan != nullptr) {
@@ -419,7 +425,7 @@ void NimBLEDevice::stopAdvertising() {
         // make sure the linker includes esp32-hal-bt.c so ardruino init doesn't release BLE memory.
         btStarted();
 #endif
-
+//nvs_flash_erase();
         errRc = nvs_flash_init();
     
         if (errRc == ESP_ERR_NVS_NO_FREE_PAGES || errRc == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -443,7 +449,7 @@ void NimBLEDevice::stopAdvertising() {
         ble_hs_cfg.sm_mitm = 0;
         ble_hs_cfg.sm_sc = 1;
         ble_hs_cfg.sm_our_key_dist = 1;
-        ble_hs_cfg.sm_their_key_dist = 1;
+        ble_hs_cfg.sm_their_key_dist = 3;
         
         ble_hs_cfg.store_status_cb = ble_store_util_status_rr; /*TODO: Implement handler for this*/
         
